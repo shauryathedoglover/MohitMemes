@@ -1,0 +1,814 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>WARDEN JHARBADE: ESCAPE THE HOSTEL</title>
+<link href="https://fonts.googleapis.com/css2?family=Bangers&family=Comic+Neue:wght@700&family=VT323&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --y:#FFE600;--r:#FF2D2D;--g:#00C851;--dark:#1a1a1a;
+  --w:#FFFEF0;--or:#FF6B00;--bl:#0057FF;
+}
+body{
+  background:#1a1a1a;
+  font-family:'Comic Neue',cursive;
+  min-height:100vh;
+  overflow-x:hidden;
+}
+body::before{
+  content:'';position:fixed;inset:0;
+  background:repeating-linear-gradient(90deg,rgba(255,255,255,0.015) 0px,rgba(255,255,255,0.015) 4px,transparent 4px,transparent 60px);
+  pointer-events:none;z-index:0;
+}
+#app{position:relative;z-index:1;max-width:680px;margin:0 auto;padding:16px 16px 60px}
+
+/* HEADER */
+.wanted-frame{
+  background:var(--y);border:6px solid var(--dark);
+  padding:0 0 16px;margin-bottom:14px;
+  box-shadow:6px 6px 0 #000;overflow:hidden;
+}
+.wanted-top,.wanted-bot{
+  background:var(--r);color:var(--y);
+  font-family:'Bangers',cursive;font-size:1.1rem;
+  letter-spacing:0.3em;padding:8px 0;text-align:center;
+  border-bottom:4px solid var(--dark);
+}
+.wanted-bot{border-top:4px solid var(--dark);border-bottom:none;margin-top:10px}
+.warden-name{
+  font-family:'Bangers',cursive;
+  font-size:clamp(2.8rem,10vw,5rem);
+  color:var(--dark);letter-spacing:0.05em;
+  text-shadow:3px 3px 0 var(--r),6px 6px 0 rgba(0,0,0,0.2);
+  line-height:0.9;margin:4px 0;text-align:center;
+}
+.warden-sub{
+  font-family:'VT323',monospace;font-size:1.1rem;
+  color:var(--dark);letter-spacing:0.1em;text-align:center;margin-top:6px;
+}
+
+/* PIXEL ART */
+.pixel-wrap{text-align:center;padding:8px 0 4px;line-height:0}
+.pixel-wrap svg{display:inline-block;width:120px;height:auto}
+
+/* STATUS BAR */
+.status-bar{display:flex;gap:8px;margin-bottom:14px}
+.stat-box{
+  flex:1;background:#111;border:2px solid #333;
+  border-radius:3px;padding:8px 10px;text-align:center;
+}
+.stat-label{font-family:'VT323',monospace;font-size:0.85rem;color:#666;letter-spacing:0.1em;text-transform:uppercase}
+.stat-val{font-family:'Bangers',cursive;font-size:1.8rem;letter-spacing:0.05em;line-height:1}
+.score-box .stat-val{color:var(--y)}
+.lives-box .stat-val{color:var(--r);font-size:1.3rem}
+.streak-box .stat-val{color:var(--or)}
+
+/* SCREENS */
+.screen{display:none}.screen.active{display:block}
+
+/* HOME */
+.home-warning{
+  background:var(--r);border:3px solid var(--y);
+  color:var(--y);font-family:'Bangers',cursive;font-size:1.1rem;
+  letter-spacing:0.1em;padding:10px 16px;text-align:center;
+  margin-bottom:14px;box-shadow:4px 4px 0 #000;
+  animation:blink 1.5s step-end infinite;
+}
+@keyframes blink{0%,100%{opacity:1}50%{opacity:0.6}}
+.notice-board{
+  background:#2a1800;border:3px solid var(--or);
+  padding:12px 14px;margin-bottom:14px;
+  color:#cc9944;font-family:'VT323',monospace;font-size:1rem;
+  letter-spacing:0.05em;line-height:1.6;box-shadow:3px 3px 0 #000;
+}
+.nb-title{font-family:'Bangers',cursive;font-size:1.2rem;color:var(--or);letter-spacing:0.1em;margin-bottom:4px}
+.mode-list{display:flex;flex-direction:column;gap:10px;margin-bottom:14px}
+.mode-item{
+  background:#111;border:3px solid #333;border-radius:3px;
+  padding:14px 16px;display:flex;align-items:center;gap:14px;
+  cursor:pointer;transition:all 0.12s;
+}
+.mode-item:hover{border-color:var(--y);background:#1f1e00;transform:translateX(4px)}
+.mi-emoji{font-size:2.2rem;flex-shrink:0}
+.mi-name{font-family:'Bangers',cursive;font-size:1.5rem;letter-spacing:0.05em;color:var(--y)}
+.mi-desc{font-size:0.8rem;color:#888;margin-top:2px}
+
+/* QUESTION CARD */
+.q-card{
+  background:#111;border:3px solid #333;border-radius:3px;
+  margin-bottom:12px;overflow:hidden;
+  animation:slideUp 0.3s ease forwards;
+}
+@keyframes slideUp{from{transform:translateY(20px);opacity:0}to{transform:translateY(0);opacity:1}}
+.q-card-top{display:flex;align-items:center;gap:10px;padding:10px 14px;border-bottom:2px solid #222}
+.q-num-badge{
+  font-family:'Bangers',cursive;font-size:1.6rem;color:var(--y);
+  background:var(--r);border:2px solid #000;padding:0 10px;line-height:1.6;
+}
+.q-type-tag{font-family:'VT323',monospace;font-size:0.95rem;color:#888;letter-spacing:0.1em;text-transform:uppercase}
+.q-scene-emoji{font-size:3rem;text-align:center;display:block;padding:14px 0 4px;animation:fl 2s ease-in-out infinite}
+@keyframes fl{0%,100%{transform:translateY(0)}50%{transform:translateY(-6px)}}
+.q-scenario{padding:10px 16px 6px;font-size:0.82rem;color:#888;font-style:italic;line-height:1.5;border-bottom:1px dashed #2a2a2a}
+.q-text{padding:12px 16px 16px;font-size:1rem;font-weight:700;color:var(--w);line-height:1.5}
+
+/* SPEED TIMER */
+.speed-timer{padding:0 14px 12px}
+.timer-track{height:6px;background:#222;border:1px solid #333;border-radius:2px;overflow:hidden}
+.timer-fill{height:100%;background:var(--y);transition:width 1s linear,background 0.3s}
+.timer-fill.danger{background:var(--r)}
+.timer-num{font-family:'Bangers',cursive;font-size:1.2rem;color:var(--y);text-align:right;margin-top:3px}
+
+/* OPTIONS */
+.options{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:12px}
+.opt-btn{
+  background:#1a1a1a;border:2px solid #333;border-radius:3px;
+  padding:12px 10px;color:#ccc;font-family:'Comic Neue',cursive;
+  font-weight:700;font-size:0.85rem;cursor:pointer;
+  text-align:left;line-height:1.4;transition:all 0.12s;
+}
+.opt-btn:hover:not(:disabled){border-color:var(--y);background:#1f1e00;color:var(--y);transform:translateX(3px)}
+.opt-btn.correct{background:#002b11;border-color:var(--g);color:var(--g)}
+.opt-btn.wrong{background:#2b0000;border-color:var(--r);color:var(--r)}
+.opt-btn:disabled{cursor:default}
+
+/* FEEDBACK */
+.feedback{
+  display:none;border:2px solid #333;border-radius:3px;
+  padding:12px 14px;margin-bottom:12px;
+  animation:feedPop 0.25s ease forwards;
+}
+@keyframes feedPop{from{transform:scale(0.9);opacity:0}to{transform:scale(1);opacity:1}}
+.feedback.show{display:block}
+.feedback.good{background:#002b11;border-color:var(--g)}
+.feedback.bad{background:#2b0000;border-color:var(--r)}
+.fb-title{font-family:'Bangers',cursive;font-size:1.5rem;letter-spacing:0.08em;margin-bottom:4px}
+.feedback.good .fb-title{color:var(--g)}
+.feedback.bad .fb-title{color:var(--r)}
+.fb-fact{font-size:0.82rem;color:#aaa;line-height:1.5;font-style:italic}
+
+/* JHARBADE REACTION BUBBLE */
+.jr-reaction{display:none;text-align:center;padding:6px 0 10px;animation:feedPop 0.3s ease forwards}
+.jr-reaction.show{display:block}
+.jr-bubble{
+  display:inline-block;background:var(--r);color:var(--y);
+  font-family:'Bangers',cursive;font-size:1.1rem;letter-spacing:0.06em;
+  padding:8px 16px 8px 28px;border:2px solid #000;
+  border-radius:0 12px 12px 12px;position:relative;
+  max-width:90%;box-shadow:3px 3px 0 #000;
+}
+.jr-bubble::before{content:'🧔';position:absolute;top:-8px;left:-14px;font-size:1.5rem}
+
+/* PROGRESS */
+.progress-row{display:flex;gap:5px;margin-bottom:12px;align-items:center;flex-wrap:wrap}
+.prog-dot{width:16px;height:16px;border-radius:50%;border:2px solid #444;background:#222;transition:all 0.2s}
+.prog-dot.done-ok{background:var(--g);border-color:var(--g)}
+.prog-dot.done-fail{background:var(--r);border-color:var(--r)}
+.prog-dot.current{background:var(--y);border-color:var(--y);box-shadow:0 0 8px rgba(255,230,0,0.6)}
+
+/* COMBO */
+.combo-row{
+  font-family:'Bangers',cursive;font-size:1.3rem;letter-spacing:0.1em;
+  color:var(--or);text-align:center;margin-bottom:8px;display:none;
+}
+.combo-row.show{display:block;animation:feedPop 0.2s ease}
+
+/* BUTTONS */
+.big-btn{
+  width:100%;padding:13px;font-family:'Bangers',cursive;
+  font-size:1.7rem;letter-spacing:0.1em;border:3px solid #000;
+  cursor:pointer;transition:all 0.12s;display:block;
+  text-align:center;margin-bottom:8px;border-radius:2px;
+}
+.big-btn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+.big-btn:active{transform:translateY(1px);filter:brightness(0.9)}
+.btn-y{background:var(--y);color:var(--dark)}
+.btn-r{background:var(--r);color:var(--w)}
+.btn-g{background:var(--g);color:var(--dark)}
+.btn-d{background:#222;color:var(--y);border-color:#444}
+
+/* RESULT */
+.result-wrap{text-align:center}
+.result-mugshot{
+  background:var(--y);border:4px solid var(--dark);
+  display:inline-block;padding:8px 20px 12px;
+  margin-bottom:14px;box-shadow:5px 5px 0 #000;
+}
+.result-emoji{font-size:4rem;display:block}
+.result-title{
+  font-family:'Bangers',cursive;font-size:clamp(2.5rem,9vw,4.5rem);
+  letter-spacing:0.04em;color:var(--y);
+  text-shadow:3px 3px 0 var(--r),6px 6px 0 #000;
+  line-height:1;margin-bottom:8px;
+}
+.result-score-chip{
+  display:inline-block;font-family:'Bangers',cursive;font-size:2rem;
+  background:var(--r);color:var(--y);border:3px solid #000;
+  padding:6px 24px;box-shadow:4px 4px 0 #000;margin-bottom:14px;
+}
+.result-verdict{
+  background:#111;border:2px solid #333;color:#ccc;
+  font-size:0.9rem;line-height:1.6;padding:14px 16px;
+  margin-bottom:16px;text-align:left;font-style:italic;
+}
+.result-verdict strong{color:var(--y);font-style:normal}
+
+/* STICKER FX */
+.sticker-pop{
+  position:fixed;font-size:3rem;pointer-events:none;
+  z-index:9999;animation:stickerFly 0.9s ease forwards;
+}
+@keyframes stickerFly{
+  0%{transform:scale(0) rotate(0deg);opacity:1}
+  60%{transform:scale(1.5) rotate(25deg);opacity:1}
+  100%{transform:scale(0.8) translateY(-90px);opacity:0}
+}
+</style>
+</head>
+<body>
+<div id="app">
+
+  <header>
+    <div class="wanted-frame">
+      <div class="wanted-top">⚠ MOST FEARED ⚠</div>
+
+      <!-- PIXEL ART WARDEN -->
+      <div class="pixel-wrap">
+        <svg viewBox="0 0 168 210" xmlns="http://www.w3.org/2000/svg" shape-rendering="crispEdges">
+          <!-- hair -->
+          <g fill="#2C1A0E">
+            <rect x="42" y="0" width="84" height="7"/>
+            <rect x="35" y="7" width="98" height="7"/>
+          </g>
+          <!-- skin - head -->
+          <g fill="#D4956A">
+            <rect x="35" y="14" width="98" height="7"/>
+            <rect x="28" y="21" width="112" height="7"/>
+            <rect x="28" y="28" width="112" height="7"/>
+            <rect x="28" y="35" width="112" height="7"/>
+            <rect x="28" y="42" width="112" height="7"/>
+            <rect x="28" y="49" width="112" height="7"/>
+            <rect x="28" y="56" width="28" height="7"/>
+            <rect x="112" y="56" width="28" height="7"/>
+            <rect x="28" y="63" width="28" height="7"/>
+            <rect x="112" y="63" width="28" height="7"/>
+            <rect x="35" y="70" width="98" height="7"/>
+          </g>
+          <!-- angry eyebrows -->
+          <g fill="#1a0800">
+            <rect x="35" y="28" width="35" height="7"/>
+            <rect x="98" y="28" width="35" height="7"/>
+          </g>
+          <!-- eyes dark -->
+          <g fill="#111">
+            <rect x="42" y="35" width="21" height="7"/>
+            <rect x="105" y="35" width="21" height="7"/>
+          </g>
+          <!-- eye glint -->
+          <g fill="#fff">
+            <rect x="42" y="35" width="7" height="4"/>
+            <rect x="105" y="35" width="7" height="4"/>
+          </g>
+          <!-- nose -->
+          <g fill="#b5784e">
+            <rect x="77" y="49" width="14" height="7"/>
+          </g>
+          <!-- frown mouth -->
+          <g fill="#7a2a2a">
+            <rect x="56" y="63" width="56" height="5"/>
+            <rect x="49" y="58" width="7" height="5"/>
+            <rect x="112" y="58" width="7" height="5"/>
+          </g>
+          <!-- beard -->
+          <g fill="#3D2310">
+            <rect x="35" y="70" width="98" height="7"/>
+            <rect x="42" y="77" width="84" height="7"/>
+            <rect x="49" y="84" width="70" height="7"/>
+          </g>
+          <!-- neck skin -->
+          <g fill="#D4956A">
+            <rect x="63" y="84" width="42" height="7"/>
+          </g>
+          <!-- khaki uniform -->
+          <g fill="#8B7355">
+            <rect x="21" y="91" width="126" height="7"/>
+            <rect x="21" y="98" width="126" height="7"/>
+            <rect x="21" y="105" width="126" height="7"/>
+            <rect x="21" y="112" width="126" height="7"/>
+            <rect x="21" y="119" width="126" height="7"/>
+            <rect x="28" y="126" width="112" height="7"/>
+          </g>
+          <!-- collar dark -->
+          <g fill="#5C4A2A">
+            <rect x="63" y="84" width="14" height="7"/>
+            <rect x="91" y="84" width="14" height="7"/>
+            <rect x="56" y="91" width="14" height="7"/>
+            <rect x="98" y="91" width="14" height="7"/>
+          </g>
+          <!-- epaulettes gold -->
+          <g fill="#FFD700">
+            <rect x="21" y="91" width="21" height="4"/>
+            <rect x="126" y="91" width="21" height="4"/>
+          </g>
+          <!-- chest badge -->
+          <g fill="#FFD700">
+            <rect x="84" y="105" width="21" height="7"/>
+          </g>
+          <!-- clipboard -->
+          <g fill="#E8D5A3">
+            <rect x="133" y="98" width="28" height="42"/>
+          </g>
+          <g fill="#888"><rect x="140" y="93" width="14" height="7"/></g>
+          <g fill="#CC4444">
+            <rect x="137" y="105" width="18" height="3"/>
+            <rect x="137" y="112" width="14" height="3"/>
+            <rect x="137" y="119" width="18" height="3"/>
+            <rect x="137" y="126" width="10" height="3"/>
+          </g>
+          <!-- pointing left arm -->
+          <g fill="#8B7355">
+            <rect x="7" y="98" width="14" height="7"/>
+            <rect x="7" y="105" width="14" height="7"/>
+          </g>
+          <g fill="#D4956A">
+            <rect x="0" y="91" width="7" height="14"/>
+          </g>
+          <!-- trousers -->
+          <g fill="#5C4A2A">
+            <rect x="35" y="133" width="98" height="7"/>
+            <rect x="42" y="140" width="35" height="7"/>
+            <rect x="91" y="140" width="35" height="7"/>
+            <rect x="42" y="147" width="35" height="7"/>
+            <rect x="91" y="147" width="35" height="7"/>
+            <rect x="42" y="154" width="35" height="7"/>
+            <rect x="91" y="154" width="35" height="7"/>
+          </g>
+          <!-- shoes -->
+          <g fill="#111">
+            <rect x="35" y="161" width="42" height="7"/>
+            <rect x="91" y="161" width="42" height="7"/>
+          </g>
+          <!-- shadow -->
+          <ellipse cx="84" cy="172" rx="55" ry="5" fill="#000" opacity="0.35"/>
+        </svg>
+      </div>
+
+      <div class="warden-name">WARDEN<br>JHARBADE</div>
+      <div class="warden-sub">HOSTEL BLOCK — HIS RULES. HIS WAY.</div>
+      <div class="wanted-bot">⚠ AVOID EYE CONTACT ⚠</div>
+    </div>
+  </header>
+
+  <div class="status-bar">
+    <div class="stat-box score-box">
+      <div class="stat-label">Score</div>
+      <div class="stat-val" id="score-val">0</div>
+    </div>
+    <div class="stat-box lives-box">
+      <div class="stat-label">Lives</div>
+      <div class="stat-val" id="lives-val">❤️❤️❤️</div>
+    </div>
+    <div class="stat-box streak-box">
+      <div class="stat-label">Streak 🔥</div>
+      <div class="stat-val" id="streak-val">0</div>
+    </div>
+  </div>
+
+  <!-- HOME -->
+  <div class="screen active" id="home-screen">
+    <div class="home-warning">🚨 LIGHTS OUT VIOLATION DETECTED 🚨</div>
+    <div class="notice-board">
+      <div class="nb-title">📋 HOSTEL NOTICE BOARD</div>
+      Think you can outsmart Warden Jharbade?<br>
+      Answer correctly → Earn freedom points.<br>
+      Answer wrong → Jharbade wins. Again.<br>
+      Survive all rounds → You are the real legend.
+    </div>
+    <div class="mode-list">
+      <div class="mode-item" onclick="startGame('classic')">
+        <span class="mi-emoji">😤</span>
+        <div>
+          <div class="mi-name">Classic Roast</div>
+          <div class="mi-desc">10 questions about Jharbade's legendary warden tactics</div>
+        </div>
+      </div>
+      <div class="mode-item" onclick="startGame('speed')">
+        <span class="mi-emoji">⚡</span>
+        <div>
+          <div class="mi-name">Curfew Countdown</div>
+          <div class="mi-desc">10 seconds per answer — just like real inspections</div>
+        </div>
+      </div>
+      <div class="mode-item" onclick="startGame('survival')">
+        <span class="mi-emoji">💀</span>
+        <div>
+          <div class="mi-name">Survival Mode</div>
+          <div class="mi-desc">3 lives only. Jharbade shows no mercy either.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- GAME -->
+  <div class="screen" id="game-screen">
+    <div class="progress-row" id="progress-row"></div>
+    <div class="combo-row" id="combo-row">🔥 COMBO x<span id="combo-count">2</span> — DOUBLE POINTS!</div>
+    <div class="feedback" id="feedback">
+      <div class="fb-title" id="fb-title"></div>
+      <div class="fb-fact" id="fb-fact"></div>
+    </div>
+    <div class="jr-reaction" id="jr-reaction">
+      <div class="jr-bubble" id="jr-quote"></div>
+    </div>
+    <div id="q-area"></div>
+    <div id="speed-timer" class="speed-timer" style="display:none">
+      <div class="timer-track"><div class="timer-fill" id="timer-fill"></div></div>
+      <div class="timer-num" id="timer-num">10</div>
+    </div>
+    <div id="next-area"></div>
+  </div>
+
+  <!-- RESULT -->
+  <div class="screen" id="result-screen">
+    <div class="result-wrap">
+      <div class="result-mugshot">
+        <span class="result-emoji" id="r-emoji">🏆</span>
+      </div>
+      <div class="result-title" id="r-title">GAME OVER</div>
+      <div class="result-score-chip" id="r-score">0 / 10</div>
+      <div class="result-verdict" id="r-verdict"></div>
+      <button class="big-btn btn-y" onclick="goHome()">🏠 BACK TO HOSTEL</button>
+      <button class="big-btn btn-d" onclick="restartSame()">🔄 TRY AGAIN</button>
+    </div>
+  </div>
+
+</div>
+<script>
+const WRONG_QUOTES = [
+  "ROOM INSPECTION. 6AM TOMORROW.",
+  "Fine of Rs.500 has been noted.",
+  "I have your parents' number.",
+  "Wrong answer. Like your life choices.",
+  "Leave application: REJECTED.",
+  "Attendance marked absent. Both days.",
+  "You call THIS acceptable?!",
+  "Go write 100 lines. NOW.",
+  "This is WHY I do surprise rounds.",
+  "I expected nothing. Still disappointed."
+];
+const RIGHT_QUOTES = [
+  "Hmph. Lucky guess.",
+  "This time. Don't get comfortable.",
+  "I'm watching you. Always.",
+  "Fine. But room better be clean.",
+  "...I'll allow it. This once.",
+  "Don't think this impresses me.",
+  "Even a broken clock...",
+  "Noted. Suspiciously."
+];
+
+const QUESTIONS = [
+  {
+    emoji:"🌙",type:"Night Inspection",
+    scenario:"It's 11:03 PM. You hear unmistakable footsteps outside your door.",
+    q:"Warden Jharbade knocks at 11PM. What does he say first?",
+    opts:["Good evening, everything alright?","LIGHTS OUT! Who gave you permission?!","Just checking if you need anything.","Sorry to disturb, carry on."],
+    ans:1,fact:"The man has never once said good evening. Not once. Witnesses confirm."
+  },
+  {
+    emoji:"📋",type:"Room Inspection",
+    scenario:"Jharbade is doing his weekly room inspection. Your room is a mild disaster.",
+    q:"Jharbade finds one dusty shelf during inspection. He:",
+    opts:["Lets it go with a gentle warning","Takes a photo and sends to parents","Writes your name in the ledger AND gives a fine","Cleans it himself because he cares"],
+    ans:2,fact:"The ledger. That cursed ledger. It has ruined more GPAs than bad exams."
+  },
+  {
+    emoji:"📞",type:"Parent Alert",
+    scenario:"You sneaked out after curfew. Jharbade noticed.",
+    q:"Jharbade's FIRST action when he catches you breaking curfew is:",
+    opts:["Ask for an explanation calmly","Immediately call your parents","Give you a warning slip","Check if you're safe first"],
+    ans:1,fact:"Parents on speed dial. He calls at 10PM which is somehow worse than midnight."
+  },
+  {
+    emoji:"🚪",type:"Curfew Science",
+    scenario:"The gate closes at 10PM. You arrive at 10:01PM.",
+    q:"You're 1 minute late to curfew. Jharbade treats this as:",
+    opts:["Totally fine, barely late","A 30-second grace period applies","Same as being 3 hours late","An opportunity to teach time management"],
+    ans:2,fact:"10:00:01 is treated identically to 1AM. The law is the law. His law."
+  },
+  {
+    emoji:"🍽️",type:"Mess Complaint",
+    scenario:"The mess food is genuinely inedible. You go to complain.",
+    q:"You complain about mess food to Warden Jharbade. He says:",
+    opts:["I'll look into it right away!","You are right, we will improve.","Ghar ka khana chahiye? Ghar jao.","Thank you for the feedback."],
+    ans:2,fact:"Ghar jao. Two words. The ultimate dismissal. Certified nuclear shutdown of any complaint."
+  },
+  {
+    emoji:"🔊",type:"Noise Complaint",
+    scenario:"Someone's playing music at 9:30PM. Not even loud. Jharbade appears.",
+    q:"Jharbade hears music at 9:30PM. His reaction is:",
+    opts:["Asks you to turn it down slightly","Confiscates the speaker permanently","Puts up a new notice banning ALL music","Joins in, he secretly loves music"],
+    ans:2,fact:"Notice board gets a new entry. Font size: LARGE. Language: threatening. Timeline: immediate."
+  },
+  {
+    emoji:"🛌",type:"Sick Leave",
+    scenario:"You're genuinely unwell and ask to skip morning assembly.",
+    q:"You tell Jharbade you're sick and need rest. He says:",
+    opts:["Of course, please rest and recover.","Go to medical room, get a slip, fill Form C-4, submit by 9AM, attend assembly anyway.","Take the day off, health first.","I'll inform your teachers for you."],
+    ans:1,fact:"Form C-4. In triplicate. Signed by the doctor, your floor senior, AND your academic tutor. By 9AM."
+  },
+  {
+    emoji:"👀",type:"Surveillance",
+    scenario:"You thought you were alone in the corridor.",
+    q:"Jharbade's signature move that terrifies every hosteller is:",
+    opts:["Sending formal warning emails","Appearing silently from NOWHERE","Posting new rules on Sundays","Doing inspection when you least expect it"],
+    ans:1,fact:"The man materialises. No sound. No warning. You turn and he's just THERE. Quantum warden behaviour."
+  },
+  {
+    emoji:"📝",type:"Notice Board",
+    scenario:"You wake up Monday morning.",
+    q:"How often does a new scary notice appear on Jharbade's board?",
+    opts:["Once a month, for serious issues","After major incidents only","Every other day minimum","Sundays guaranteed, sometimes twice"],
+    ans:3,fact:"The notice board is basically his diary. Updated more regularly than any student's assignment."
+  },
+  {
+    emoji:"🎂",type:"Birthday Surprise",
+    scenario:"Your birthday! Friends bring a cake at midnight.",
+    q:"Friends wish you at midnight with a cake. Jharbade, who heard the noise:",
+    opts:["Wishes you happy birthday","Confiscates the cake as outside food","Lets it slide just this once","Issues fine for post-11PM disturbance"],
+    ans:3,fact:"Post-11PM noise rule 4(a). The cake survives. The birthday spirit does not."
+  },
+  {
+    emoji:"🤝",type:"End of Year",
+    scenario:"Last day before semester break. You're finally free.",
+    q:"What does Jharbade do on the LAST day of semester?",
+    opts:["Wishes everyone safe travels warmly","Inspects your room before you can leave","Throws a small farewell gathering","Takes the day off like a normal person"],
+    ans:1,fact:"You cannot leave until room is inspected, key is signed out, and checkout form is stamped. In that order."
+  },
+  {
+    emoji:"💡",type:"Power Politics",
+    scenario:"There's a power cut. You use a candle in your room.",
+    q:"Jharbade finds you using a candle during power cut. He:",
+    opts:["Understands, it's an emergency","Gives you his torch and leaves","Writes a fire hazard notice AND fine","Brings extra candles from store"],
+    ans:2,fact:"Fire hazard clause 7(b). He has it memorised. He was WAITING for this moment."
+  },
+  {
+    emoji:"🏃",type:"Morning Terror",
+    scenario:"6AM mandatory morning exercise. Your eyes barely open.",
+    q:"Jharbade's morning exercise session is best described as:",
+    opts:["Optional and friendly","Gentle yoga for wellbeing","Military drill by a man who enjoys your suffering","A casual walk around campus"],
+    ans:2,fact:"He arrives before everyone. He is never tired. He watches your pain with something resembling satisfaction."
+  },
+  {
+    emoji:"📦",type:"Parcel Drama",
+    scenario:"Your parents sent you a food parcel from home.",
+    q:"A food parcel arrives for you. Jharbade's procedure is:",
+    opts:["Calls you to collect immediately","Holds it for 2-3 days for verification","Delivers it to your room personally","Opens it to check contents with you present"],
+    ans:1,fact:"Verification. Of homemade food. From your mother. Held for 3 days. The achaar dries out waiting."
+  },
+  {
+    emoji:"🎓",type:"Alumni Wisdom",
+    scenario:"Years later, alumni reflect on hostel life.",
+    q:"What do ALL former students eventually say about Warden Jharbade?",
+    opts:["He was genuinely kind, we misunderstood.","He made us stronger, somehow.","Total villain, no redeeming qualities.","I have blocked those memories entirely."],
+    ans:1,fact:"Every single batch says it. Usually 2-3 years after leaving. Grudging respect. Deeply reluctant. But it happens."
+  }
+];
+
+let G = {
+  mode:'classic',qs:[],cur:0,score:0,streak:0,
+  lives:3,answered:false,timer:null,timeLeft:10,
+  results:[],lastMode:'classic'
+};
+
+function shuffle(a){return [...a].sort(()=>Math.random()-0.5)}
+function rand(a){return a[Math.floor(Math.random()*a.length)]}
+function show(id){
+  document.querySelectorAll('.screen').forEach(s=>s.classList.remove('active'));
+  document.getElementById(id).classList.add('active');
+}
+function goHome(){clearTimer();show('home-screen')}
+function restartSame(){startGame(G.lastMode)}
+
+function updateHeader(){
+  document.getElementById('score-val').textContent=G.score;
+  document.getElementById('streak-val').textContent=G.streak;
+  const h=['','❤️','❤️❤️','❤️❤️❤️'];
+  document.getElementById('lives-val').textContent=
+    G.mode==='survival'?(h[Math.max(0,G.lives)]||''):'❤️❤️❤️';
+}
+
+function popSticker(correct){
+  const ok=['😂','🔥','💯','👑','💪','😎','✅','🎉'];
+  const bad=['💀','😭','🤡','❌','☠️','😤'];
+  const s=document.createElement('div');
+  s.className='sticker-pop';
+  s.textContent=rand(correct?ok:bad);
+  s.style.left=(20+Math.random()*60)+'%';
+  s.style.top=(30+Math.random()*30)+'%';
+  document.body.appendChild(s);
+  setTimeout(()=>s.remove(),1000);
+}
+
+function startGame(mode){
+  G.mode=mode;G.lastMode=mode;
+  G.qs=shuffle(QUESTIONS).slice(0,mode==='survival'?QUESTIONS.length:10);
+  G.cur=0;G.score=0;G.streak=0;G.lives=3;G.results=[];G.answered=false;
+  updateHeader();
+  show('game-screen');
+  buildDots();
+  showQ();
+}
+
+function buildDots(){
+  if(G.mode==='survival'){
+    document.getElementById('progress-row').innerHTML=
+      '<span style="font-family:VT323,monospace;font-size:1.1rem;color:var(--y)">💀 SURVIVAL — one life per wrong answer</span>';
+    return;
+  }
+  document.getElementById('progress-row').innerHTML=
+    G.qs.map((_,i)=>`<div class="prog-dot" id="dot-${i}"></div>`).join('');
+  setDot(G.cur,'current');
+}
+
+function setDot(i,cls){
+  const d=document.getElementById('dot-'+i);
+  if(d)d.className='prog-dot '+cls;
+}
+
+function showQ(){
+  clearTimer();
+  hideFeedback();
+  G.answered=false;
+  document.getElementById('next-area').innerHTML='';
+  document.getElementById('combo-row').classList.remove('show');
+  document.getElementById('jr-reaction').classList.remove('show');
+
+  const q=G.qs[G.cur];
+  if(!q){endGame();return}
+
+  if(G.mode!=='survival') setDot(G.cur,'current');
+
+  if(G.streak>=2){
+    document.getElementById('combo-count').textContent=G.streak;
+    document.getElementById('combo-row').classList.add('show');
+  }
+
+  document.getElementById('q-area').innerHTML=`
+    <div class="q-card">
+      <div class="q-card-top">
+        <span class="q-num-badge">#${G.cur+1}</span>
+        <span class="q-type-tag">${q.type}</span>
+      </div>
+      <span class="q-scene-emoji">${q.emoji}</span>
+      <div class="q-scenario">${q.scenario}</div>
+      <div class="q-text">${q.q}</div>
+    </div>
+    <div class="options" id="opts">
+      ${q.opts.map((o,i)=>`<button class="opt-btn" id="opt-${i}" onclick="answer(${i})">${o}</button>`).join('')}
+    </div>`;
+
+  if(G.mode==='speed'){
+    G.timeLeft=10;
+    document.getElementById('speed-timer').style.display='block';
+    document.getElementById('timer-fill').style.width='100%';
+    document.getElementById('timer-fill').classList.remove('danger');
+    document.getElementById('timer-num').textContent=10;
+    startTimer();
+  } else {
+    document.getElementById('speed-timer').style.display='none';
+  }
+}
+
+function startTimer(){
+  G.timer=setInterval(()=>{
+    G.timeLeft--;
+    const pct=(G.timeLeft/10)*100;
+    const fill=document.getElementById('timer-fill');
+    const num=document.getElementById('timer-num');
+    if(fill)fill.style.width=pct+'%';
+    if(G.timeLeft<=3&&fill)fill.classList.add('danger');
+    if(num)num.textContent=G.timeLeft;
+    if(G.timeLeft<=0){clearTimer();if(!G.answered)timeUp();}
+  },1000);
+}
+
+function clearTimer(){if(G.timer){clearInterval(G.timer);G.timer=null}}
+
+function timeUp(){
+  G.answered=true;
+  disableOpts();
+  const q=G.qs[G.cur];
+  document.getElementById('opt-'+q.ans).classList.add('correct');
+  G.streak=0;
+  if(G.mode==='survival'){G.lives--;updateHeader();}
+  updateHeader();
+  popSticker(false);
+  showJR(false);
+  showFeedback('⏰ TOO SLOW!',q.fact,false);
+  G.results.push(false);
+  if(G.mode==='survival'&&G.lives<=0){setTimeout(endGame,1800);return}
+  if(G.mode!=='survival')setDot(G.cur,'done-fail');
+  showNextBtn();
+}
+
+function answer(i){
+  if(G.answered)return;
+  G.answered=true;
+  clearTimer();
+  disableOpts();
+  const q=G.qs[G.cur];
+  const ok=i===q.ans;
+  document.getElementById('opt-'+i).classList.add(ok?'correct':'wrong');
+  if(ok){
+    document.getElementById('opt-'+q.ans).classList.add('correct');
+    const pts=G.streak>=2?2:1;
+    G.score+=pts;G.streak++;
+    showFeedback('SAHI PAKDE! +'+pts+' point'+(pts>1?'s':'')+'!',q.fact,true);
+    G.results.push(true);
+    popSticker(true);
+    if(G.mode!=='survival')setDot(G.cur,'done-ok');
+  } else {
+    document.getElementById('opt-'+q.ans).classList.add('correct');
+    G.streak=0;
+    if(G.mode==='survival'){G.lives--;}
+    showFeedback('GALAT! Bhai seriously?!',q.fact,false);
+    G.results.push(false);
+    popSticker(false);
+    if(G.mode!=='survival')setDot(G.cur,'done-fail');
+  }
+  showJR(ok);
+  updateHeader();
+  if(G.mode==='survival'&&G.lives<=0){setTimeout(endGame,1800);return}
+  showNextBtn();
+}
+
+function disableOpts(){document.querySelectorAll('.opt-btn').forEach(b=>b.disabled=true)}
+
+function showFeedback(title,fact,ok){
+  const fb=document.getElementById('feedback');
+  document.getElementById('fb-title').textContent=title;
+  document.getElementById('fb-fact').textContent=fact||'';
+  fb.className='feedback '+(ok?'good':'bad')+' show';
+}
+
+function hideFeedback(){
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('feedback').classList.remove('show');
+}
+
+function showJR(ok){
+  document.getElementById('jr-quote').textContent=rand(ok?RIGHT_QUOTES:WRONG_QUOTES);
+  document.getElementById('jr-reaction').classList.add('show');
+}
+
+function showNextBtn(){
+  const last=G.cur>=G.qs.length-1;
+  document.getElementById('next-area').innerHTML=last
+    ?'<button class="big-btn btn-g" onclick="endGame()">SEE RESULTS 🏁</button>'
+    :'<button class="big-btn btn-d" onclick="nextQ()">NEXT ROUND →</button>';
+}
+
+function nextQ(){
+  G.cur++;
+  if(G.cur>=G.qs.length){endGame();return}
+  showQ();
+}
+
+function endGame(){
+  clearTimer();
+  const total=G.results.length;
+  const correct=G.results.filter(Boolean).length;
+  const pct=total>0?Math.round((correct/total)*100):0;
+
+  let emoji,title,msg;
+
+  if(G.mode==='survival'){
+    const n=total;
+    emoji=n<=3?'💀':n<=7?'😅':n<=12?'🔥':'👑';
+    title=n<=3?'JHARBADE WINS':n<=7?'NOT BAD BRO':n<=12?'LEGEND SPOTTED':'HIS EQUAL??';
+    msg=`You survived ${n} questions. ${n<=3?'Jharbade is disappointed. Go write 100 lines.':n>=10?'You might actually understand him better than he understands himself.':'Decent effort. He is still unimpressed.'}`;
+    document.getElementById('r-score').textContent=n+' SURVIVED';
+  } else {
+    emoji=pct<30?'💀':pct<50?'😅':pct<70?'😂':pct<90?'🔥':'👑';
+    title=pct<30?'DETENTION!':pct<50?'COULD BE WORSE':pct<70?'NOT BAD BHAI':pct<90?'HOSTEL VETERAN':'JHARBADE SCHOLAR';
+    const lines=[
+      `${correct}/${total} correct. Do you even live in this hostel?`,
+      `${correct}/${total} correct. Jharbade has noted this performance. In the ledger.`,
+      `${correct}/${total} correct. You've clearly survived at least one inspection.`,
+      `${correct}/${total} correct. Bhai you know his tactics better than his own staff.`,
+      `${correct}/${total} correct. You've either studied under him very long or you ARE him.`
+    ];
+    msg=pct<30?lines[0]:pct<50?lines[1]:pct<70?lines[2]:pct<90?lines[3]:lines[4];
+    document.getElementById('r-score').textContent=G.score+' PTS — '+correct+'/'+total;
+  }
+
+  document.getElementById('r-emoji').textContent=emoji;
+  document.getElementById('r-title').textContent=title;
+  document.getElementById('r-verdict').innerHTML=msg;
+  show('result-screen');
+}
+</script>
+</body>
+</html>
